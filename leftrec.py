@@ -59,50 +59,72 @@ for i in range(l):
         P[len(P)-1].append('e')
 
 #Left rec 2
-def remove_left_recursion(grammar):
-    non_terminals = list(grammar.keys())
-    new_grammar = {}
-
-    for A in non_terminals:
-        new_grammar[A] = []
-        alpha = []
-        beta = []
-
-        for production in grammar[A]:
-            if production[0] == A:
-                alpha.append(production[1:])
-            else:
-                beta.append(production)
-
-        if len(alpha) > 0:
-            new_non_terminal = A + "'"
-            new_grammar[new_non_terminal] = [a + new_non_terminal for a in alpha] + ['e']
-            new_grammar[A] = [b + new_non_terminal for b in beta]
-        else:
-            new_grammar[A] = grammar[A]
-
-    return new_grammar
-
-
-def print_grammar(grammar):
-    for non_terminal, productions in grammar.items():
-        print(non_terminal + " -> " + " | ".join(productions))
-
-# Example grammar
-grammar = {
-    "E" : ["E+T", "T"],
-    "T": ["T*F", "F"],
-    "F": ["id"]
-}
-
-print("Original Grammar:")
-print_grammar(grammar)
-
-new_grammar = remove_left_recursion(grammar)
-
-print("\nGrammar after removing left recursion:")
-print_grammar(new_grammar)
-
+def solveNonImmediateLR(self, A, B) :
+        nameA = A.getName()
+        nameB = B.getName()
+ 
+        rulesA = []
+        rulesB = []
+        newRulesA = []
+        rulesA = A.getRules()
+        rulesB = B.getRules()
+ 
+        for rule in rulesA :
+            if rule[0 : len(nameB)] == nameB :
+                for rule1 in rulesB :
+                    newRulesA.append(rule1 + rule[len(nameB) : ])
+            else :
+                newRulesA.append(rule)
+        A.setRules(newRulesA)
+ 
+    def solveImmediateLR(self, A) :
+        name = A.getName()
+        newName = name + "'"
+ 
+        alphas = []
+        betas = []
+        rules = A.getRules()
+        newRulesA = []
+        newRulesA1 = []
+ 
+        rules = A.getRules()
+ 
+        # Checks if there is left recursion or not
+        for rule in rules :
+            if rule[0 : len(name)] == name :
+                alphas.append(rule[len(name) : ])
+            else :
+                betas.append(rule)
+ 
+        # If no left recursion, exit
+        if len(alphas) == 0 :
+            return
+ 
+        if len(betas) == 0 :
+            newRulesA.append(newName)
+ 
+        for beta in betas :
+            newRulesA.append(beta + newName)
+ 
+        for alpha in alphas :
+            newRulesA1.append(alpha + newName)
+ 
+        # Amends the original rule
+ 
+        A.setRules(newRulesA)
+        newRulesA1.append("\u03B5")
+ 
+        # Adds new production rule
+        newNonTerminal = NonTerminal(newName)
+        newNonTerminal.setRules(newRulesA1)
+        self.nonTerminals.append(newNonTerminal)
+ 
+    def applyAlgorithm(self) :
+        size = len(self.nonTerminals)
+        for i in range(size) :
+            for j in range(i) :
+                self.solveNonImmediateLR(self.nonTerminals[i], self.nonTerminals[j])
+            self.solveImmediateLR(self.nonTerminals[i])
 #Left Factoring
 for v in range(len(V)):
     pref=[]
