@@ -129,7 +129,7 @@ if(accept_flag):
 
 
 
-
+#SLR TABLE
 
 
 from collections import defaultdict
@@ -388,7 +388,7 @@ for state in slr_table:
   print("\n")
 
 
-
+#QUADRUPLES AND TRIPLES
 
 
 from collections import *
